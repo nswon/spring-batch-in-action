@@ -36,26 +36,26 @@ public class TransactionProcessorJobConfiguration {
     private int chunkSize;
 
     @Bean(JOB_NAME)
-    public Job job() {
+    public Job transactionProcessorJob() {
         return new JobBuilder(JOB_NAME, jobRepository)
             .preventRestart()
-            .start(step())
+            .start(transactionProcessorStep())
             .build();
     }
 
     @Bean(BEAN_PREFIX + "step")
     @JobScope
-    public Step step() {
+    public Step transactionProcessorStep() {
         return new StepBuilder(BEAN_PREFIX + "step", jobRepository)
             .<Teacher, ClassInformation>chunk(chunkSize, transactionManager)
-            .reader(reader())
-            .processor(processor())
-            .writer(writer())
+            .reader(transactionProcessorReader())
+            .processor(transactionProcessor())
+            .writer(transactionProcessorWriter())
             .build();
     }
 
     @Bean
-    public JpaPagingItemReader<Teacher> reader() {
+    public JpaPagingItemReader<Teacher> transactionProcessorReader() {
         return new JpaPagingItemReaderBuilder<Teacher>()
             .name(BEAN_PREFIX + "reader")
             .entityManagerFactory(emf)
@@ -64,11 +64,11 @@ public class TransactionProcessorJobConfiguration {
             .build();
     }
 
-    public ItemProcessor<Teacher, ClassInformation> processor() {
+    public ItemProcessor<Teacher, ClassInformation> transactionProcessor() {
         return teacher -> new ClassInformation(teacher.getName(), teacher.getStudents().size());
     }
 
-    private ItemWriter<ClassInformation> writer() {
+    private ItemWriter<ClassInformation> transactionProcessorWriter() {
         return items -> {
             log.info(">>>>> Item Writer");
             for (ClassInformation item: items) {

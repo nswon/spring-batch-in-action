@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,17 +24,15 @@ public class SimpleJobConfiguration {
     @Bean
     public Job simpleJob() {
         return new JobBuilder("simpleJob", jobRepository)
-            .start(simpleStep1(null))
+            .start(simpleStep1())
             .build();
     }
 
     @Bean
-    @JobScope
-    public Step simpleStep1(@Value("#{jobParameters[requestDate]}}") String requestData) {
+    public Step simpleStep1() {
         return new StepBuilder("simpleStep1", jobRepository)
             .tasklet(((contribution, chunkContext) -> {
                 log.info(">>>>> This is Step1");
-                log.info(">>>>> requestDate = {}", requestData);
                 return RepeatStatus.FINISHED;
             }), transactionManager)
             .build();

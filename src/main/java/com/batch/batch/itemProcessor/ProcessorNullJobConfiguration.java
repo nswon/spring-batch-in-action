@@ -23,7 +23,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @RequiredArgsConstructor
 public class ProcessorNullJobConfiguration {
-    public static final String JOB_NAME = "ProcessorConvertBatch";
+    public static final String JOB_NAME = "ProcessorNullBatch";
     public static final String BEAN_PREFIX = JOB_NAME + "_";
 
     private final JobRepository jobRepository;
@@ -34,26 +34,26 @@ public class ProcessorNullJobConfiguration {
     private int chunkSize;
 
     @Bean(JOB_NAME)
-    public Job job() {
+    public Job processorNullJob() {
         return new JobBuilder(JOB_NAME, jobRepository)
             .preventRestart()
-            .start(step())
+            .start(processorNullStep())
             .build();
     }
 
     @Bean(BEAN_PREFIX + "step")
     @JobScope
-    public Step step() {
+    public Step processorNullStep() {
         return new StepBuilder(BEAN_PREFIX + "step", jobRepository)
             .<Teacher, Teacher>chunk(chunkSize, transactionManager)
-            .reader(reader())
-            .processor(processor())
-            .writer(writer())
+            .reader(processorNullReader())
+            .processor(processorNullProcessor())
+            .writer(processorNullWriter())
             .build();
     }
 
     @Bean
-    public JpaPagingItemReader<Teacher> reader() {
+    public JpaPagingItemReader<Teacher> processorNullReader() {
         return new JpaPagingItemReaderBuilder<Teacher>()
             .name(BEAN_PREFIX + "reader")
             .entityManagerFactory(emf)
@@ -63,7 +63,7 @@ public class ProcessorNullJobConfiguration {
     }
 
     @Bean
-    public ItemProcessor<Teacher, Teacher> processor() {
+    public ItemProcessor<Teacher, Teacher> processorNullProcessor() {
         return teacher -> {
 
             boolean isIgnoreTarget = teacher.getId() % 2 == 0L;
@@ -76,7 +76,7 @@ public class ProcessorNullJobConfiguration {
         };
     }
 
-    private ItemWriter<Teacher> writer() {
+    private ItemWriter<Teacher> processorNullWriter() {
         return items -> {
             for (Teacher item: items) {
                 log.info("Teacher Name={}", item.getName());

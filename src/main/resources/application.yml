@@ -9,6 +9,7 @@ logging:
   level:
     com:
       batch: DEBUG
+#    root: DEBUG
 ---
 
 spring:

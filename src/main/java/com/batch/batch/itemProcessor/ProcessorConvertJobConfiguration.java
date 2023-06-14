@@ -34,26 +34,26 @@ public class ProcessorConvertJobConfiguration {
     private int chunkSize;
 
     @Bean(JOB_NAME)
-    public Job job() {
+    public Job processorConvertJob() {
         return new JobBuilder(JOB_NAME, jobRepository)
             .preventRestart()
-            .start(step())
+            .start(processorConvertStep())
             .build();
     }
 
     @Bean(BEAN_PREFIX + "step")
     @JobScope
-    public Step step() {
+    public Step processorConvertStep() {
         return new StepBuilder(BEAN_PREFIX + "step", jobRepository)
             .<Teacher, String>chunk(chunkSize, transactionManager)
-            .reader(reader())
-            .processor(processor())
-            .writer(writer())
+            .reader(processorConvertReader())
+            .processor(processorConvertProcessor())
+            .writer(processorConvertWriter())
             .build();
     }
 
     @Bean
-    public JpaPagingItemReader<Teacher> reader() {
+    public JpaPagingItemReader<Teacher> processorConvertReader() {
         return new JpaPagingItemReaderBuilder<Teacher>()
             .name(BEAN_PREFIX + "reader")
             .entityManagerFactory(emf)
@@ -64,11 +64,11 @@ public class ProcessorConvertJobConfiguration {
 
     //첫번째 타입은 Reader에서 읽어올 타입, 두번째 타입은 Writer에 넘겨줄 타입
     @Bean
-    public ItemProcessor<Teacher, String> processor() {
+    public ItemProcessor<Teacher, String> processorConvertProcessor() {
         return Teacher::getName;
     }
 
-    private ItemWriter<String> writer() {
+    private ItemWriter<String> processorConvertWriter() {
         return items -> {
             for (String item: items) {
                 log.info("Teacher Name={}", item);

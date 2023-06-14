@@ -39,26 +39,26 @@ public class ProcessorCompositeJobConfiguration {
     private int chunkSize;
 
     @Bean(JOB_NAME)
-    public Job job() {
+    public Job processorCompositeJob() {
         return new JobBuilder(JOB_NAME, jobRepository)
             .preventRestart()
-            .start(step())
+            .start(processorCompositeStep())
             .build();
     }
 
     @Bean(BEAN_PREFIX + "step")
     @JobScope
-    public Step step() {
+    public Step processorCompositeStep() {
         return new StepBuilder(BEAN_PREFIX + "step", jobRepository)
             .<Teacher, String>chunk(chunkSize, transactionManager)
-            .reader(reader())
+            .reader(processorCompositeReader())
             .processor(compositeItemProcessor())
-            .writer(writer())
+            .writer(processorCompositeWriter())
             .build();
     }
 
     @Bean
-    public JpaPagingItemReader<Teacher> reader() {
+    public JpaPagingItemReader<Teacher> processorCompositeReader() {
         return new JpaPagingItemReaderBuilder<Teacher>()
             .name(BEAN_PREFIX + "reader")
             .entityManagerFactory(emf)
@@ -88,7 +88,7 @@ public class ProcessorCompositeJobConfiguration {
         return name -> "안녕하세요. "+ name + "입니다.";
     }
 
-    private ItemWriter<String> writer() {
+    private ItemWriter<String> processorCompositeWriter() {
         return items -> {
             for (String item : items) {
                 log.info("Teacher Name={}", item);
