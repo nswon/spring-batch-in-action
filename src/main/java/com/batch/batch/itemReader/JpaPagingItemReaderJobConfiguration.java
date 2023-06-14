@@ -53,12 +53,7 @@ public class JpaPagingItemReaderJobConfiguration {
             .build();
     }
 
-    @Bean
-    public ItemWriter<Pay> jpaPagingItemWriter() {
-        return list -> {
-            for (Pay pay: list) {
-                log.info("Current Pay={}", pay);
-            }
-        };
+    private ItemWriter<Pay> jpaPagingItemWriter() {
+        return list -> list.forEach(pay -> log.info("Current Pay = {}", pay));
     }
 }

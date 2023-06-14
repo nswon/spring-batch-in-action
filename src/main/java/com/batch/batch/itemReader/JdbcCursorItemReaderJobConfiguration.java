@@ -44,8 +44,8 @@ public class JdbcCursorItemReaderJobConfiguration {
     @Bean
     public Step jdbcCursorItemReaderStep() {
         return new StepBuilder("jdbcCursorItemReaderStep", jobRepository)
-            //첫번째 Pay는 Reader 반환값이고, 두번째 Pay는 Writer의 파라미터다.
-            .<Pay, Pay>chunk(chunkSize, transactionManager)
+            //첫번째 Pay는 Reader 반환값이고, 두번째 Pay는 Writer의 파라미터로 넘어올 타입이다.
+            .<Pay, Pay>chunk(chunkSize, transactionManager) //chunkSize는 Reader & Writer가 묶일 Chunk 트랜잭션 범위이다.
             .reader(jdbcCursorItemReader())
             .writer(jdbcCursorItemWriter())
             .build();
@@ -54,16 +54,15 @@ public class JdbcCursorItemReaderJobConfiguration {
     @Bean
     public JdbcCursorItemReader<Pay> jdbcCursorItemReader() {
         return new JdbcCursorItemReaderBuilder<Pay>()
-            .fetchSize(chunkSize)
-            .dataSource(dataSource)
-            .rowMapper(new BeanPropertyRowMapper<>(Pay.class))
+            .fetchSize(chunkSize) //db에서 한번에 가져올 데이터 양
+            .dataSource(dataSource) ////db에 접근하기 위해 사용할 객체
+            .rowMapper(new BeanPropertyRowMapper<>(Pay.class)) //쿼리 결과를 Java 인스턴스로 매핑하기 위함
             .sql("SELECT id, amount, tx_name, tx_date_time FROM pay")
             .name("jdbcCursorItemReader")
             .build();
     }
 
-    @Bean
-    public ItemWriter<Pay> jdbcCursorItemWriter() {
+    private ItemWriter<Pay> jdbcCursorItemWriter() {
         return list -> {
             for(Pay pay : list) {
                 log.info("Current Pay = {}", pay);

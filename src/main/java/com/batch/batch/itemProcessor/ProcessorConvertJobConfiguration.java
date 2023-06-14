@@ -19,6 +19,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * ItemProcessor을 사용하는 2가지 이유 (Why? processor은 필수가 아니다. Chunk 지향처리에서 필수인 것은 reader와 writer뿐이다.)
+ * 1. 변환
+ * 2. 필터
+ */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
@@ -69,10 +74,6 @@ public class ProcessorConvertJobConfiguration {
     }
 
     private ItemWriter<String> processorConvertWriter() {
-        return items -> {
-            for (String item: items) {
-                log.info("Teacher Name={}", item);
-            }
-        };
+        return items -> items.forEach(item -> log.info("Teacher Name={}", item));
     }
 }

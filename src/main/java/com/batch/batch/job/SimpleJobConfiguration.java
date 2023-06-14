@@ -20,7 +20,8 @@ public class SimpleJobConfiguration {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
 
-    //Job은 하나의 배치 실행 단위댜.
+    //Job은 하나의 배치 작업 단위
+    //ex) "모든 사용자의 이메일로 회원가입 축하 메세지를 보내자!"가 통째로 하나의 Job이다.
     @Bean
     public Job simpleJob() {
         return new JobBuilder("simpleJob", jobRepository)
@@ -28,6 +29,7 @@ public class SimpleJobConfiguration {
             .build();
     }
 
+    //하나의 Job은 여러 Step을 가질 수 있다.
     @Bean
     public Step simpleStep1() {
         return new StepBuilder("simpleStep1", jobRepository)

@@ -69,7 +69,7 @@ public class ProcessorNullJobConfiguration {
             boolean isIgnoreTarget = teacher.getId() % 2 == 0L;
             if(isIgnoreTarget) {
                 log.info(">>>>> Teacher name={}, isIgnoreTarget={}", teacher.getName(), isIgnoreTarget);
-                return null;
+                return null; //return을 null로 하면 writer에 값이 넘어가지 않는다.
             }
 
             return teacher;
@@ -77,10 +77,6 @@ public class ProcessorNullJobConfiguration {
     }
 
     private ItemWriter<Teacher> processorNullWriter() {
-        return items -> {
-            for (Teacher item: items) {
-                log.info("Teacher Name={}", item.getName());
-            }
-        };
+        return items -> items.forEach(item -> log.info("Teacher Name={}", item.getName()));
     }
 }
